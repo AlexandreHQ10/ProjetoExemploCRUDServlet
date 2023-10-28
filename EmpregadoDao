@@ -1,0 +1,125 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+public class EmpregadoDao {
+
+	public static Connection getConnection() {
+		
+		Connection con = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			con = DriverManager.getConnection("jdbc:mysql://localhost:3306/crudservlet","root","root"); 
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		return con;
+	}
+	
+	public static int save(Empregado e) {
+		
+		int status=0;
+		
+		try {
+			
+			Connection con =EmpregadoDao.getConnection();
+			PreparedStatement ps=con.prepareStatement("insert into empregado(nomeempregado, senhaempregado, emailempregado, paisempregado)values(?,?,?,?)");
+			ps.setString(1,e.getNome());
+			ps.setString(2,e.getSenha());
+			ps.setString(3,e.getEmail());
+			ps.setString(4,e.getPais());
+			
+			status=ps.executeUpdate();
+	
+			con.close();
+			
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return status;
+	}
+	public static int update(Empregado e){  
+        int status=0;
+        
+        try{  
+            Connection con=EmpregadoDao.getConnection();  
+            PreparedStatement ps =con.prepareStatement(  
+                         "update empregado set nomeempregado=?,senhaempregado=?,emailempregado=?,paisempregado=? where idempregado=?");  
+            ps.setString(1,e.getNome());  
+            ps.setString(2,e.getSenha());  
+            ps.setString(3,e.getEmail());  
+            ps.setString(4,e.getPais());  
+            ps.setInt(5,e.getId());  
+              
+            status=ps.executeUpdate();  
+              
+            con.close();  
+        }catch(Exception ex){ex.printStackTrace();}  
+          
+        return status;  
+    }  
+	
+	public static int delete(int id){  
+        int status=0;
+        
+        try{  
+            Connection con=EmpregadoDao.getConnection();  
+            PreparedStatement ps=con.prepareStatement("delete from empregado where idempregado=?");  
+            ps.setInt(1,id);  
+            status=ps.executeUpdate();  
+              
+            con.close();  
+        }catch(Exception e){e.printStackTrace();}  
+          
+        return status;  
+    }  
+	
+    public static Empregado getEmpregadoById(int id){  
+        Empregado e = new Empregado(); 
+        
+        try{  
+            Connection con=EmpregadoDao.getConnection();  
+            PreparedStatement ps=con.prepareStatement("select * from empregado where idempregado=?");  
+            ps.setInt(1,id);  
+            
+            ResultSet rs=ps.executeQuery();  
+            
+            if(rs.next()){  
+                e.setId(rs.getInt(1));  
+                e.setNome(rs.getString(2));  
+                e.setSenha(rs.getString(3));  
+                e.setEmail(rs.getString(4));  
+                e.setPais(rs.getString(5));  
+            }  
+            con.close();  
+        }catch(Exception ex){ex.printStackTrace();}  
+          
+        return e;  
+    } 
+    
+    public static List<Empregado> getAllEmployees(){  
+        List<Empregado> list=new ArrayList<Empregado>();  
+          
+        try{  
+            Connection con=EmpregadoDao.getConnection();  
+            PreparedStatement ps=con.prepareStatement("select * from empregado");  
+            ResultSet rs=ps.executeQuery();
+            
+            while(rs.next()){  
+                Empregado e=new Empregado();  
+                e.setId(rs.getInt(1));  
+                e.setNome(rs.getString(2));  
+                e.setSenha(rs.getString(3));  
+                e.setEmail(rs.getString(4));  
+                e.setPais(rs.getString(5));  
+                list.add(e);  
+            }  
+            con.close();  
+        }catch(Exception e){e.printStackTrace();}  
+          
+        return list;  
+    }  
+}
